@@ -1,5 +1,5 @@
 import { changeQuantity } from "../actions/cartActions";
-import { ADD_TO_CART, DELETE_FROM_CART, CHANGE_PRODUCT_QUANTITY } from "../actions/types";
+import { ADD_TO_CART, DELETE_FROM_CART, CHANGE_PRODUCT_QUANTITY, ADD_TO_SAVED, DELETE_FROM_SAVED, MOVE_TO_CART, MOVE_TO_SAVED } from "../actions/types";
 
 const cartReducer = (state, action) => {
     if(state === undefined){
@@ -7,6 +7,7 @@ const cartReducer = (state, action) => {
             cartItems: [],
             numberOfItems: 0,
             totalCost: parseFloat(0.00),
+            savedItems: []
         }
     }
     switch(action.type){
@@ -18,8 +19,8 @@ const cartReducer = (state, action) => {
             return {
                 ...state,
                 cartItems: [...state.cartItems, action.product],
-                numberOfItems: state.numberOfItems+1,
-                totalCost: state.totalCost + parseFloat(action.product.price*action.product.quantity)
+                numberOfItems: state.numberOfItems + 1,
+                totalCost: state.totalCost + parseFloat(action.product.price * action.product.quantity)
             }
         case DELETE_FROM_CART:
             return {
@@ -42,12 +43,44 @@ const cartReducer = (state, action) => {
                 newNumber += item.quantity
                 return item
             })
-            console.log(newCartItems)
             return {
                 ...state,
                 cartItems: newCartItems,
                 numberOfItems: newNumber,
                 totalCost: newCost
+            }
+        case ADD_TO_SAVED:
+            if((state.cartItems.findIndex(item=>item.id === action.product.id)) >= 0){
+                return {
+                    ...state
+                }
+            } else {
+                return {
+                    ...state,
+                    savedItems: [...state.savedItems, action.product]
+                }
+            }
+        case DELETE_FROM_SAVED:
+            return {
+                ...state,
+                savedItems: state.savedItems.filter(item=> item.id !== action.product.id)
+            }
+        case MOVE_TO_CART:
+            action.product.quantity = 1
+            return {
+                ...state,
+                cartItems: [...state.cartItems, action.product],
+                numberOfItems: state.numberOfItems + 1,
+                totalCost: state.totalCost + parseFloat(action.product.price*action.product.quantity),
+                savedItems: state.savedItems.filter(item=> item.id !== action.product.id)
+            }
+        case MOVE_TO_SAVED:
+            return {
+                ...state,
+                cartItems: state.cartItems.filter(item=> item.id !== action.product.id),
+                numberOfItems: state.numberOfItems - action.product.quantity,
+                totalCost: state.totalCost - parseFloat(action.product.price * action.product.quantity),
+                savedItems: [...state.savedItems, action.product]
             }
         default:
             return state

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import { loadProducts } from '../actions/productActions';
-import { addToCart } from '../actions/cartActions';
+import { addToCart, addToSaved } from '../actions/cartActions';
 import { formatCurrency } from './utils';
 import Fade from 'react-reveal/Fade';
 import CartItems from './CartItems';
@@ -32,8 +32,9 @@ const Products = () => {
                   </a>
                   <div className="d-flex justify-content-around">
                     <div>{formatCurrency(product.price)}</div>
-                    
+
                     <button onClick={()=>dispatch(addToCart(product))} className="btn btn-warning">Add To Cart</button>
+                    <button onClick={()=>dispatch(addToSaved(product))} className="btn btn-primary">Add To Saved</button>
                   </div>
                 </div>
                 )
